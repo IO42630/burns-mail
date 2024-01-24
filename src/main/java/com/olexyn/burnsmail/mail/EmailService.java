@@ -18,8 +18,8 @@ import java.util.Properties;
 public class EmailService {
 
 
-    public void readEmails() throws MessagingException, IOException {
-        Properties properties = new Properties();
+    private Store connect() throws MessagingException {
+        var properties = new Properties();
         properties.setProperty("mail.store.protocol", "imaps");
 
         Session session = Session.getDefaultInstance(properties, null);
@@ -29,6 +29,12 @@ public class EmailService {
             System.getenv("spring.mail.username"),
             System.getenv("spring.mail.password")
         );
+        return store;
+    }
+
+
+    public void readEmails() throws MessagingException, IOException {
+        Store store = connect();
 
         Folder inbox = store.getFolder("INBOX");
         inbox.open(Folder.READ_ONLY);
@@ -37,14 +43,23 @@ public class EmailService {
         Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
         for (Message message : messages) {
-            // Process each email message
-            System.out.println("Subject: " + message.getSubject());
-            System.out.println("From: " + message.getFrom()[0]);
-            System.out.println("Body: " + message.getContent());
+          //TODO: do something with the message
         }
 
         // Close resources
         inbox.close(false);
         store.close();
     }
+
+    public void expunge() throws MessagingException {
+        Store store = connect();
+        Folder trash = store.getFolder("INBOX").getFolder("Trash");
+        trash.open(Folder.READ_WRITE);
+        for (Message message : trash.getMessages()) {
+            message.setFlag(Flags.Flag.DELETED, true);
+        }
+        trash.close(true); // expunge
+        store.close();
+    }
+
 }

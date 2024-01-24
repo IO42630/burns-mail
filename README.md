@@ -2,7 +2,7 @@
 
 ## Goals
 
-* connect to mailbox
+* connect to mailbox (OK)
 * connect to ollama
-* check mail
+* check mail (OK)
 * move to burn folder
