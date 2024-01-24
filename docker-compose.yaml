@@ -1,0 +1,19 @@
+version: '3'
+services:
+
+    #  See .env for vars.
+    burns-mail:
+        container_name: burns-mail
+        image: io42630/burns-mail:0.1
+        environment:
+            - spring.mail.host=${SPRING_EMAIL_HOST}
+            - spring.mail.port=${SPRING_EMAIL_PORT}
+            - spring.mail.username=${SPRING_EMAIL_USERNAME}
+            - spring.mail.password=${SPRING_EMAIL_PASSWORD}
+            - spring.mail.properties.mail.smtp.auth=true
+            - spring.mail.properties.mail.smtp.starttls.enable=true
+
+
+
+
+
