@@ -1,6 +1,9 @@
 package com.olexyn.burnsmail;
 
 import lombok.experimental.UtilityClass;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -45,5 +48,11 @@ public class MiscU {
         Folder targetFolder = expand(store, null, arrList);
         targetFolder.open(READ_WRITE);
         return targetFolder;
+    }
+
+    public static JSONObject deserializeJson(String json) throws ParseException {
+        JSONParser parser = new JSONParser();
+        return (JSONObject) parser.parse(json);
+
     }
 }
