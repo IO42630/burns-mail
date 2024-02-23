@@ -1,0 +1,46 @@
+= BurnsMail
+:stylesheet: ../shared/adoc-styles.css
+:toc:
+:toclevels: 4
+
+== Getting Started
+* run `build+recreate.sh`
+
+== Flow (trigger)
+* We trigger one of our workflows via REST to our App.
+
+== Flow (engine)
+* we have our own little engine, as defined in `process(flow)`.
+* it consists of the following steps:
+** `search` : the `Store` for `Message[]`
+** `map` : the `Message` to `AMail` (lazy or full, see `AMail`)
+** `filter` : the `AMail` (e.g. by _subject_)
+** `transform` : the `AMail` (e.g. set spam score)
+** `action` : on the `AMail` (e.g. move to folder)
+** `cleanup` : on the `Store` (e.g. flush some folder)
+
+== AMail
+* generally `AMail` is a proxy-less `String`-backed representation of a `Message`.
+
+== List of current Step Implementations
+
+=== Search
+* `FetchAll` : fetch all messages from some `Folder`
+* `SearchAnySubject` : search for any of the provided subjects in some `Folder`
+
+=== Map
+* TODO : doc
+
+=== Filter
+* TODO : doc
+
+=== Transform
+* `SetOpenAiScore` : set spam-score by asking _openai_
+
+=== Action
+* `MoveToFolder` : move the mail to some `Folder`
+
+=== Cleanup
+* `FlushFolders` : flush the provides `Folder` s
+
+
