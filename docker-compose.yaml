@@ -12,6 +12,7 @@ services:
             - spring.mail.password=${SPRING_EMAIL_PASSWORD}
             - spring.mail.properties.mail.smtp.auth=true
             - spring.mail.properties.mail.smtp.starttls.enable=true
+            - openai.api.key=${OPENAI_API_KEY}
 
 
 

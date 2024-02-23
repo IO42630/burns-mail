@@ -1,0 +1,5 @@
+POST http://localhost:42003/triage/sbb
+Content-Type: application/json
+
+{
+}
