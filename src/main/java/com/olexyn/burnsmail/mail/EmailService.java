@@ -1,15 +1,23 @@
 package com.olexyn.burnsmail.mail;
 
+import com.olexyn.burnsmail.flow.Flow;
+import com.olexyn.burnsmail.flow.action.CopyToDst;
+import com.olexyn.burnsmail.flow.cleanup.FlushFolders;
+import com.olexyn.burnsmail.flow.filter.AnyFromContains;
+import com.olexyn.burnsmail.flow.map.FullToAMailMapper;
+import com.olexyn.burnsmail.flow.map.LazyToAMailMapper;
+import com.olexyn.burnsmail.flow.search.FetchAll;
+import com.olexyn.burnsmail.flow.search.SearchAnySubject;
+import com.olexyn.burnsmail.flow.transform.SetOpenAiScore;
+import com.olexyn.burnsmail.model.AMail;
+import com.olexyn.min.log.LogU;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.search.FlagTerm;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -17,6 +25,7 @@ import java.util.Properties;
 @Service
 public class EmailService {
 
+    private static final String INBOX = "INBOX";
 
     private Store connect() throws MessagingException {
         var properties = new Properties();
@@ -32,34 +41,54 @@ public class EmailService {
         return store;
     }
 
+    private void process(Flow flow) {
+        try (Store store = connect()) {
+            // SEARCH
+            var messages = flow.getSearchFolder().search(store);
+            // MAP TO AMail
+            List<AMail> mappeds = new ArrayList<>();
+            for (var message : messages) {
+                mappeds.add(flow.getToAMailMapper().map(message));
+            }
+            // FILTER & TRANSFORM & ACTION
+            mappeds.stream()
+                .filter(flow.getFilterAMail()::doKeep)
+                .map(m -> flow.getTransformAMail().transform(m))
+                .forEach(m -> flow.getAction().execute(m, store));
 
-    public void readEmails() throws MessagingException, IOException {
-        Store store = connect();
-
-        Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_ONLY);
-
-        // Fetch unread messages
-        Message[] messages = inbox.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-
-        for (Message message : messages) {
-          //TODO: do something with the message
+        } catch (MessagingException | NullPointerException e) {
+            LogU.warnPlain("Could not process." + e.getMessage());
         }
-
-        // Close resources
-        inbox.close(false);
-        store.close();
     }
 
-    public void expunge() throws MessagingException {
-        Store store = connect();
-        Folder trash = store.getFolder("INBOX").getFolder("Trash");
-        trash.open(Folder.READ_WRITE);
-        for (Message message : trash.getMessages()) {
-            message.setFlag(Flags.Flag.DELETED, true);
-        }
-        trash.close(true); // expunge
-        store.close();
+
+
+    public void doSbbTriage() {
+        var flow = new Flow(
+            new SearchAnySubject(INBOX, "Your online purchase from SBB", "Your online purchase from SBB"),
+            new LazyToAMailMapper(),
+            new AnyFromContains("sbbclient@sbb.ch", "sbbclient@order.info.sbb.ch"),
+            (AMail a) -> a,
+            new CopyToDst(INBOX, "INBOX/TRIAGE/SBB"),
+            new FlushFolders(INBOX)
+        );
+        process(flow);
     }
+
+    public void classifyAsSpam() {
+        var flow = new Flow(
+            new FetchAll(INBOX),
+            new FullToAMailMapper(),
+            (AMail a) -> true,
+            new SetOpenAiScore(),
+            new CopyToDst(INBOX, "INBOX/TRIAGE/SPAM"),
+            new FlushFolders(INBOX)
+        );
+        process(flow);
+    }
+
+
+
+
 
 }

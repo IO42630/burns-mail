@@ -19,21 +19,20 @@ public class Controller {
         this.emailService = emailService;
     }
 
-    @PostMapping("/read")
-    public  ResponseEntity<String> postConfig() {
+    @PostMapping("/triage/sbb")
+    public ResponseEntity<String> triageSbb() {
         try {
-            emailService.readEmails();
+            emailService.doSbbTriage();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
 
-
-    @PostMapping("/expunge")
-    public  ResponseEntity<String> expunge() {
+    @PostMapping("/classify/spam")
+    public ResponseEntity<String> postConfig() {
         try {
-            emailService.expunge();
+            emailService.classifyAsSpam();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
