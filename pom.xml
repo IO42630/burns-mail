@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.olexyn</groupId>
-        <artifactId>zeeroot</artifactId>
-        <version>spring-boot-jdk17-0.1</version>
+        <artifactId>min-root</artifactId>
+        <version>jdk17-spring-0.0</version>
     </parent>
     <artifactId>burns-mail</artifactId>
     <version>0.1</version>
@@ -43,6 +43,29 @@
             <!-- for some godforsaken reason this is required. -->
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.16.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.olexyn.min.log</groupId>
+            <artifactId>min-log</artifactId>
         </dependency>
     </dependencies>
 </project>
